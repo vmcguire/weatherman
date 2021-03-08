@@ -70,7 +70,7 @@ var saveCityList = function () {
 
 var getCurrentCityWeather = function (city) {
   var apiURL =
-    "http://api.openweathermap.org/data/2.5/weather?q=" +
+    "https://api.openweathermap.org/data/2.5/weather?q=" +
     city +
     "&appid=" +
     apiKey +
@@ -116,7 +116,7 @@ var createCitiesList = function (cityData, city) {
 
 var getListCityWeather = function (city) {
   var apiURL =
-    "http://api.openweathermap.org/data/2.5/weather?q=" +
+    "https://api.openweathermap.org/data/2.5/weather?q=" +
     city +
     "&appid=" +
     apiKey +
@@ -153,7 +153,7 @@ var displayCurrentCityWeather = function (data) {
   var currentImageEl = document.createElement("img");
   currentImageEl.setAttribute(
     "src",
-    "http://openweathermap.org/img/wn/" + data.weather[0].icon + ".png"
+    "https://openweathermap.org/img/wn/" + data.weather[0].icon + ".png"
   );
   currentCityNameEl.textContent = data.name + " (" + currentDate + ")";
 
