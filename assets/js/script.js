@@ -7,16 +7,65 @@ var futureWeatherEl = document.querySelector("#future");
 
 var apiKey = "dbd5e89cd8977342dc7484593a4a1f06";
 
+var loadCityList = function () {
+  cityList = JSON.parse(localStorage.getItem("cityList"));
+
+  // if nothing in localStorage, create a new object to track all task status arrays
+  if (!cityList) {
+    cityList = [];
+    localStorage.setItem("cityList", JSON.stringify(cityList));
+  }
+  citiesListEl.innerHTML = "";
+  for (var i = 0; i < cityList.length; i++) {
+    var cityItemEl = document.createElement("li");
+    cityItemEl.classList = "list-item align-center disabled";
+
+    var cityNameEl = document.createElement("a");
+    cityNameEl.classList = "list-group-item";
+    cityNameEl.textContent = cityList[i];
+
+    cityItemEl.appendChild(cityNameEl);
+    citiesListEl.appendChild(cityItemEl);
+  }
+};
+
+var doesCityExistCheck = function (city) {
+  var doesCityExist = 0;
+  for (var i = 0; i < cityList.length; i++) {
+    if (city.toLowerCase() == cityList[i].toLowerCase()) {
+      doesCityExist = 1;
+      // getCurrentCityWeather(city);
+      break;
+    } else {
+      doesCityExist == 0;
+    }
+  }
+  return doesCityExist;
+};
+
 var formSubmitHandler = function (event) {
   event.preventDefault();
+  loadCityList();
   var city = inputCityEl.value.trim();
-
   if (city) {
-    getCurrentCityWeather(city);
+    if (cityList.length === 0) {
+      cityList.push(city);
+      saveCityList();
+    } else {
+      if (doesCityExistCheck(city) == 0) {
+        cityList.push(city);
+        saveCityList();
+      }
+    }
     inputCityEl.value = "";
+    getCurrentCityWeather(city);
   } else {
     alert("Please enter a city to search");
   }
+};
+
+var saveCityList = function () {
+  localStorage.setItem("cityList", JSON.stringify(cityList));
 };
 
 var getCurrentCityWeather = function (city) {
@@ -42,23 +91,27 @@ var getCurrentCityWeather = function (city) {
     });
 };
 
-var createCitiesList = function (cityData, searchTerm) {
-  // check if api returned any repos
+var createCitiesList = function (cityData, city) {
+  loadCityList();
   if (cityData.length === 0) {
     citiesListEl.textContent = "No cities found.";
     return;
   }
 
-  var cityItemEl = document.createElement("li");
-  cityItemEl.classList = "list-item align-center disabled";
+  if (doesCityExistCheck(city) == 0) {
+    var cityItemEl = document.createElement("li");
+    cityItemEl.classList = "list-item align-center disabled";
 
-  var cityNameEl = document.createElement("a");
-  cityNameEl.classList = "list-group-item";
-  cityNameEl.textContent = cityData.name;
+    var cityNameEl = document.createElement("a");
+    cityNameEl.classList = "list-group-item";
+    cityNameEl.textContent = city;
 
-  cityItemEl.appendChild(cityNameEl);
-  citiesListEl.appendChild(cityItemEl);
+    cityItemEl.appendChild(cityNameEl);
+    citiesListEl.appendChild(cityItemEl);
+  }
+
   displayCurrentCityWeather(cityData);
+  saveCityList();
 };
 
 var getListCityWeather = function (city) {
@@ -188,7 +241,6 @@ var displayForecast = function (lat, lon) {
   fetch(apiURL).then(function (response) {
     if (response.ok) {
       response.json().then(function (data) {
-        console.log(data);
         futureWeatherEl.innerHTML =
           "<h4 class='mt-5 p-3 col-12'>5-Day Forecast:</h4>";
         var forecastCardSectionEl = document.createElement("div");
@@ -240,6 +292,19 @@ var displayForecast = function (lat, lon) {
   });
 };
 
+// var saveCityList = function () {
+//   localStorage.setItem("cityList", JSON.stringify(cityList));
+// };
+
+// var loadCityList = function () {
+//     cityList = JSON.parse(localStorage.getItem("cityList"));
+
+//     // if nothing in localStorage, create a new object to track all task status arrays
+//     if (!cityList) {
+//       cityList = [];
+//     }
+
+loadCityList();
 searchFormEl.addEventListener("submit", formSubmitHandler);
 
 //AS A traveler
